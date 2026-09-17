@@ -16,6 +16,17 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `src/app/page.tsx`. The page auto-updates as you edit the file.
 
+Useful project commands:
+
+```bash
+npm run typecheck
+npm test
+npm run build
+npm audit --audit-level=high
+```
+
+CI enforces unexpected dependency audit findings and fails on critical advisories.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

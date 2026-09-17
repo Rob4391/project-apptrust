@@ -110,7 +110,6 @@ jobs:
             [1124252, { severity: "high", title: "PostCSS: Arbitrary file read and information disclosure via attacker-controlled sourceMappingURL in CSS comments" }],
             [1139510, { severity: "high", title: "PostCSS: Path Traversal in Previous Source Map Auto-Loading (sourceMappingURL) leads to Arbitrary .map File Disclosure" }],
             [1123525, { severity: "high", title: "vite: `server.fs.deny` bypass on Windows alternate paths" }],
-            [1139528, { severity: "critical", title: "When Vitest UI server is listening, arbitrary file can be read and executed" }],
           ]);
 
           const highSeverityFindings = new Map();
@@ -171,8 +170,13 @@ jobs:
             process.exit(1);
           }
 
+          if (highSeverityFindings.size === 0) {
+            console.log("npm audit reported no high-severity findings.");
+            process.exit(0);
+          }
+
           console.log("Approved npm audit baseline only:");
-          for (const [source, finding] of approvedHighSeverityAdvisories) {
+          for (const [source, finding] of highSeverityFindings) {
             console.log(`- ${source} [${finding.severity}]: ${finding.title}`);
           }
           EOF
