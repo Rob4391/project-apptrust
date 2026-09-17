@@ -25,7 +25,7 @@ npm run build
 npm audit --audit-level=high
 ```
 
-CI enforces unexpected dependency audit findings and fails on critical advisories.
+CI fails on npm audit findings at high severity or above.
 
 ## Learn More
 
