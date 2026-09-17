@@ -15,6 +15,7 @@ export type AppRecord = {
     icon: string | null;
     description: string;
     url: string;
+    permissions: string[];
 };
 
 export function parseAppReference(value: string): { store: AppStore; appId: string } | null {

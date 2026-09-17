@@ -35,6 +35,7 @@ export async function getGooglePlayApp(appId: string): Promise<GooglePlayApp> {
         icon: app.icon ?? null,
         description: app.description,
         url: app.url,
+        permissions: [],
     };
 }
 
