@@ -1,19 +1,7 @@
 import gplay from "google-play-scraper";
+import type { AppRecord } from "./app";
 
-export type GooglePlayApp = {
-    appId: string;
-    name: string;
-    category: string | null;
-    rating: number | null;
-    ratings: number | null;
-    downloads: string | null;
-    developer: string;
-    developerEmail: string | null;
-    developerWebsite: string | null;
-    icon: string | null;
-    description: string;
-    url: string;
-};
+export type GooglePlayApp = AppRecord;
 
 export function parseGooglePlayAppId(value: string): string | null {
     try {
@@ -34,6 +22,8 @@ export async function getGooglePlayApp(appId: string): Promise<GooglePlayApp> {
 
     return {
         appId: app.appId,
+        reference: `google:${app.appId}`,
+        store: "google-play",
         name: app.title,
         category: app.genre ?? null,
         rating: app.score ?? null,
