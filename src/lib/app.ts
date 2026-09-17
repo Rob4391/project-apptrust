@@ -2,10 +2,28 @@ export type AppStore = "google-play" | "apple-app-store";
 
 export type TrustSignals = {
     websiteUrl: string | null;
+    domain: string | null;
+    domainAgeYears: number | null;
+    registrar: string | null;
     websiteReachable: boolean | null;
     httpsEnabled: boolean;
     privacyPolicyAvailable: boolean;
     developerContactAvailable: boolean;
+    suspiciousDomain: boolean;
+};
+
+export type TrustScore = {
+    score: number;
+    level: "safe" | "medium-risk" | "high-risk";
+    recommendation: string;
+    reasons: string[];
+};
+
+export type ScanStage = {
+    key: string;
+    label: string;
+    detail: string;
+    status: "passed" | "warning" | "unavailable";
 };
 
 export type AppRecord = {
@@ -26,6 +44,8 @@ export type AppRecord = {
     url: string;
     permissions: string[];
     trustSignals?: TrustSignals;
+    trustScore?: TrustScore;
+    scanStages?: ScanStage[];
 };
 
 export function parseAppReference(value: string): { store: AppStore; appId: string } | null {

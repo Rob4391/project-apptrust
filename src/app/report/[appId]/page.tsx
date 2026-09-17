@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import type { AppRecord } from "@/lib/app";
+import type { AppRecord, ScanStage } from "@/lib/app";
 import { explainPermissions } from "@/lib/permissions";
 
 export default function AppReport() {
@@ -12,6 +12,7 @@ export default function AppReport() {
     const appReference = decodeURIComponent(params.appId);
     const [app, setApp] = useState<AppRecord | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [visibleStages, setVisibleStages] = useState(0);
 
     useEffect(() => {
         const controller = new AbortController();
@@ -41,6 +42,15 @@ export default function AppReport() {
         return () => controller.abort();
     }, [appReference]);
 
+    const scanStages = app?.scanStages ?? [];
+
+    useEffect(() => {
+        if (visibleStages >= scanStages.length) return;
+
+        const timer = window.setTimeout(() => setVisibleStages((count) => count + 1), 260);
+        return () => window.clearTimeout(timer);
+    }, [scanStages.length, visibleStages]);
+
     if (error) {
         return <main className="report-shell"><p className="report-error">{error}</p><Link href="/">← Check another app</Link></main>;
     }
@@ -63,6 +73,16 @@ export default function AppReport() {
                 <div><span>Rating</span><strong>{app.rating ? `${app.rating.toFixed(1)} / 5` : "Not available"}</strong></div>
                 <div><span>{app.store === "apple-app-store" ? "Platform" : "Downloads"}</span><strong>{app.downloads ?? "iPhone / iPad"}</strong></div>
                 <div><span>Ratings</span><strong>{app.ratings?.toLocaleString() ?? "Not available"}</strong></div>
+            </section>
+            <section className="scan-section" aria-labelledby="scan-title">
+                <div className="scan-heading"><div><p className="eyebrow">AppTrust analysis</p><h2 id="scan-title">Trust scan pipeline</h2></div><span className="scan-progress-label">{visibleStages === scanStages.length ? "Complete" : "Checking"}</span></div>
+                <div className="scan-progress" aria-label={`${visibleStages} of ${scanStages.length} checks complete`}><span style={{ width: `${scanStages.length ? (visibleStages / scanStages.length) * 100 : 0}%` }} /></div>
+                <div className="scan-pipeline">
+                    {scanStages.map((stage: ScanStage, index) => {
+                        const visible = index < visibleStages;
+                        return <div className={`scan-node ${visible ? `scan-${stage.status}` : "scan-pending"}`} key={stage.key}><span className="scan-node-dot">{visible ? stage.status === "passed" ? "✓" : "!" : index + 1}</span><div><strong>{stage.label}</strong><small>{visible ? stage.detail : "Waiting"}</small></div>{index < scanStages.length - 1 && <i aria-hidden="true" />}</div>;
+                    })}
+                </div>
             </section>
             <section className="report-section"><p className="eyebrow">What we found</p><h2>A clearer picture before the download.</h2><p>{app.description}</p></section>
             <section className="permission-section" aria-labelledby="permissions-title">
@@ -95,6 +115,15 @@ export default function AppReport() {
                         <div><span>Privacy policy</span><strong>{app.trustSignals.privacyPolicyAvailable ? "Available" : "Not listed"}</strong></div>
                         <div><span>Developer contact</span><strong>{app.trustSignals.developerContactAvailable ? "Available" : "Not listed"}</strong></div>
                     </div>
+                </section>
+            )}
+            {app.trustScore && (
+                <section className="score-section" aria-labelledby="trust-score-title">
+                    <div className="score-summary">
+                        <div><p className="eyebrow">AppTrust recommendation</p><h2 id="trust-score-title">Trust score</h2><p>{app.trustScore.recommendation}</p></div>
+                        <div className={`trust-score trust-score-${app.trustScore.level}`}><strong>{app.trustScore.score}</strong><span>/100</span></div>
+                    </div>
+                    <div className="score-reasons"><strong>Score signals</strong><ul>{app.trustScore.reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul></div>
                 </section>
             )}
             <a className="store-link" href={app.url} target="_blank" rel="noreferrer">View on {app.store === "apple-app-store" ? "Apple App Store" : "Google Play"} ↗</a>
