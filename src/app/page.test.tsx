@@ -31,9 +31,10 @@ describe("AppTrust homepage", () => {
         const user = userEvent.setup();
         render(<Home />);
 
-        const statusMessage = screen.getByText("No account needed · Free to check");
+        const statusMessage = screen.getByRole("status");
 
         expect(statusMessage).toHaveAttribute("aria-live", "polite");
+        expect(statusMessage).toHaveTextContent("No account needed · Free to check");
 
         await user.type(screen.getByLabelText("Start with an app"), "https://play.google.com/store/apps/details?id=com.whatsapp");
         await user.click(screen.getByRole("button", { name: /check app/i }));
