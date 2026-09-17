@@ -19,6 +19,7 @@ export function parseGooglePlayAppId(value: string): string | null {
 
 export async function getGooglePlayApp(appId: string): Promise<GooglePlayApp> {
     const app = await gplay.app({ appId, lang: "en", country: "us" });
+    const privacyPolicy = (app as typeof app & { privacyPolicy?: string }).privacyPolicy;
 
     return {
         appId: app.appId,
@@ -36,6 +37,7 @@ export async function getGooglePlayApp(appId: string): Promise<GooglePlayApp> {
         description: app.description,
         url: app.url,
         permissions: [],
+        privacyPolicyUrl: privacyPolicy ?? null,
     };
 }
 

@@ -36,5 +36,6 @@ export async function getAppleApp(appId: string): Promise<AppleApp> {
         description: app.description,
         url: app.url,
         permissions: [],
+        privacyPolicyUrl: app.privacyPolicy ?? null,
     };
 }

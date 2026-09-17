@@ -84,6 +84,19 @@ export default function AppReport() {
                     <p className="permission-empty">This store listing does not provide permission details yet. AppTrust will explain them here when the store makes them available.</p>
                 )}
             </section>
+            {app.trustSignals && (
+                <section className="trust-section" aria-labelledby="trust-signals-title">
+                    <p className="eyebrow">Developer signals</p>
+                    <h2 id="trust-signals-title">A few useful checks.</h2>
+                    <div className="trust-signal-grid">
+                        <div><span>Website</span><strong>{app.trustSignals.websiteUrl ? "Found" : "Not listed"}</strong></div>
+                        <div><span>Website status</span><strong>{app.trustSignals.websiteReachable === null ? "Not checked" : app.trustSignals.websiteReachable ? "Reachable" : "Unavailable"}</strong></div>
+                        <div><span>HTTPS</span><strong>{app.trustSignals.httpsEnabled ? "Enabled" : "Not confirmed"}</strong></div>
+                        <div><span>Privacy policy</span><strong>{app.trustSignals.privacyPolicyAvailable ? "Available" : "Not listed"}</strong></div>
+                        <div><span>Developer contact</span><strong>{app.trustSignals.developerContactAvailable ? "Available" : "Not listed"}</strong></div>
+                    </div>
+                </section>
+            )}
             <a className="store-link" href={app.url} target="_blank" rel="noreferrer">View on {app.store === "apple-app-store" ? "Apple App Store" : "Google Play"} ↗</a>
         </main>
     );

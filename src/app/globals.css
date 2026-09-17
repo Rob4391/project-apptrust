@@ -715,6 +715,47 @@ h1 em {
     padding: 14px 18px;
 }
 
+.trust-section {
+    border-top: 1px solid var(--line);
+    margin-top: 20px;
+    padding: 70px 0 45px;
+}
+
+.trust-section h2 {
+    font-family: Georgia, serif;
+    font-size: clamp(35px, 5vw, 60px);
+    font-weight: 400;
+    letter-spacing: -0.06em;
+    line-height: 0.95;
+    margin: 18px 0 30px;
+}
+
+.trust-signal-grid {
+    border-bottom: 1px solid var(--line);
+    border-top: 1px solid var(--line);
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(5, 1fr);
+    padding: 22px 0;
+}
+
+.trust-signal-grid div {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.trust-signal-grid span {
+    color: var(--muted);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.trust-signal-grid strong {
+    font-size: 13px;
+}
+
 @media (max-width: 800px) {
     .topbar {
         padding: 22px 22px;
@@ -815,7 +856,15 @@ h1 em {
         padding-top: 55px;
     }
 
+    .trust-section {
+        padding-top: 55px;
+    }
+
     .permission-grid {
         grid-template-columns: 1fr;
+    }
+
+    .trust-signal-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
