@@ -23,8 +23,7 @@ export function parseGooglePlayAppId(value: string): string | null {
             return null;
         }
 
-        const appId = url.searchParams.get("id");
-        return appId && /^[a-zA-Z0-9_]+(?:\.[a-zA-Z0-9_]+)+$/.test(appId) ? appId : null;
+        return normalizeGooglePlayAppId(url.searchParams.get("id"));
     } catch {
         return null;
     }
@@ -47,4 +46,8 @@ export async function getGooglePlayApp(appId: string): Promise<GooglePlayApp> {
         description: app.description,
         url: app.url,
     };
+}
+
+export function normalizeGooglePlayAppId(value: string | null): string | null {
+    return value && /^[a-zA-Z0-9_]+(?:\.[a-zA-Z0-9_]+)+$/.test(value) ? value : null;
 }

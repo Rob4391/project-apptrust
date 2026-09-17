@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { GooglePlayApp } from "@/lib/google-play";
@@ -51,7 +52,7 @@ export default function AppReport() {
             <nav className="report-nav"><Link className="brand" href="/"><span className="brand-mark">+</span> AppTrust</Link><span>APP REPORT / LIVE</span></nav>
             <Link className="back-link" href="/">← Check another app</Link>
             <section className="report-hero">
-                <div className="report-app-icon">{app.icon ? <img src={app.icon} alt="" /> : <span>{app.name.slice(0, 1)}</span>}</div>
+                <div className="report-app-icon">{app.icon ? <Image src={app.icon} alt="" width={112} height={112} /> : <span>{app.name.slice(0, 1)}</span>}</div>
                 <div><p className="eyebrow">Google Play app</p><h1>{app.name}</h1><p className="report-developer">{app.developer} · {app.category ?? "App"}</p></div>
             </section>
             <section className="app-facts" aria-label="App information">
