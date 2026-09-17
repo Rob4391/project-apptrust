@@ -84,6 +84,18 @@ jobs:
             process.exit(1);
           }
 
+          const auditExitCode = Number.parseInt(fs.readFileSync(exitCodePath, "utf8").trim(), 10);
+
+          if (!Number.isInteger(auditExitCode)) {
+            console.error("npm audit exit code could not be read.");
+            process.exit(1);
+          }
+
+          if (auditExitCode !== 0 && auditExitCode !== 1) {
+            console.error(`npm audit failed before baseline evaluation (exit code ${auditExitCode}). Check registry and network access.`);
+            process.exit(1);
+          }
+
           let report;
 
           try {
@@ -94,15 +106,14 @@ jobs:
             process.exit(1);
           }
 
-          const auditExitCode = Number.parseInt(fs.readFileSync(exitCodePath, "utf8").trim(), 10);
-
-          if (!Number.isInteger(auditExitCode)) {
-            console.error("npm audit exit code could not be read.");
+          if (report.auditReportVersion !== 2 || typeof report.vulnerabilities !== "object" || report.vulnerabilities === null) {
+            console.error("npm audit report format was not recognized.");
             process.exit(1);
           }
 
-          if (report.auditReportVersion !== 2 || typeof report.vulnerabilities !== "object" || report.vulnerabilities === null) {
-            console.error("npm audit report format was not recognized.");
+          if (typeof report.error === "object" && report.error !== null) {
+            console.error("npm audit reported an operational error before baseline evaluation.");
+            console.error(report.error.summary ?? report.error.code ?? JSON.stringify(report.error));
             process.exit(1);
           }
 
@@ -132,8 +143,8 @@ jobs:
             process.exit(1);
           }
 
-          if (auditExitCode !== 0 && auditExitCode !== 1) {
-            console.error(`npm audit exited unexpectedly with code ${auditExitCode}.`);
+          if (auditExitCode === 1 && highSeverityFindings.size === 0) {
+            console.error("npm audit reported a failing status without any high-severity findings.");
             process.exit(1);
           }
 
@@ -143,8 +154,11 @@ jobs:
           const changedApprovedFindings = [...approvedHighSeverityAdvisories.entries()].filter(
             ([source, approved]) => {
               const finding = highSeverityFindings.get(source);
-              return !finding || finding.severity !== approved.severity || finding.title !== approved.title;
+              return Boolean(finding) && (finding.severity !== approved.severity || finding.title !== approved.title);
             },
+          );
+          const resolvedApprovedFindings = [...approvedHighSeverityAdvisories.entries()].filter(
+            ([source]) => !highSeverityFindings.has(source),
           );
 
           if (unexpectedFindings.length > 0) {
@@ -159,15 +173,17 @@ jobs:
             console.error("Approved npm audit baseline no longer matches the current report:");
             for (const [source, approved] of changedApprovedFindings) {
               const finding = highSeverityFindings.get(source);
-              if (!finding) {
-                console.error(`- ${source} [${approved.severity}]: missing from the current audit report`);
-                continue;
-              }
-
               console.error(`- ${source}: expected [${approved.severity}] ${approved.title}`);
               console.error(`  actual   [${finding.severity}] ${finding.title}`);
             }
             process.exit(1);
+          }
+
+          if (resolvedApprovedFindings.length > 0) {
+            console.log("Approved advisories no longer present in the current audit report:");
+            for (const [source, finding] of resolvedApprovedFindings) {
+              console.log(`- ${source} [${finding.severity}]: ${finding.title}`);
+            }
           }
 
           if (highSeverityFindings.size === 0) {
