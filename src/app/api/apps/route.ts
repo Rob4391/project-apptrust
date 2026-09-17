@@ -9,7 +9,13 @@ export async function GET(request: Request) {
     const requestedId = requestUrl.searchParams.get("id");
     const reference = requestedId ? parseAppReference(requestedId) : null;
     const appleId = inputUrl ? parseAppleStoreAppId(inputUrl) : reference?.store === "apple-app-store" ? reference.appId : null;
-    const googleId = inputUrl ? parseGooglePlayAppId(inputUrl) : reference?.store === "google-play" ? normalizeGooglePlayAppId(reference.appId) : null;
+    const googleId = inputUrl
+        ? parseGooglePlayAppId(inputUrl)
+        : reference?.store === "google-play"
+            ? normalizeGooglePlayAppId(reference.appId)
+            : !reference
+                ? normalizeGooglePlayAppId(requestedId)
+                : null;
 
     if (!appleId && !googleId) {
         return NextResponse.json(

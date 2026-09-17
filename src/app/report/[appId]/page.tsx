@@ -8,6 +8,7 @@ import type { AppRecord } from "@/lib/app";
 
 export default function AppReport() {
     const params = useParams<{ appId: string }>();
+    const appReference = decodeURIComponent(params.appId);
     const [app, setApp] = useState<AppRecord | null>(null);
     const [error, setError] = useState<string | null>(null);
 
@@ -16,7 +17,7 @@ export default function AppReport() {
 
         async function loadApp() {
             try {
-                const response = await fetch(`/api/apps?id=${encodeURIComponent(params.appId)}`, {
+                const response = await fetch(`/api/apps?id=${encodeURIComponent(appReference)}`, {
                     signal: controller.signal,
                 });
                 const data = await response.json();
@@ -37,7 +38,7 @@ export default function AppReport() {
 
         loadApp();
         return () => controller.abort();
-    }, [params.appId]);
+    }, [appReference]);
 
     if (error) {
         return <main className="report-shell"><p className="report-error">{error}</p><Link href="/">← Check another app</Link></main>;
