@@ -486,6 +486,134 @@ h1 em {
     text-transform: none;
 }
 
+.report-shell {
+    margin: 0 auto;
+    max-width: 1000px;
+    min-height: 100vh;
+    padding: 32px 44px 90px;
+}
+
+.report-nav {
+    align-items: center;
+    display: flex;
+    font-size: 10px;
+    justify-content: space-between;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.back-link {
+    color: var(--green);
+    display: inline-block;
+    font-size: 12px;
+    margin-top: 80px;
+}
+
+.report-hero {
+    align-items: center;
+    display: flex;
+    gap: 25px;
+    margin: 28px 0 55px;
+}
+
+.report-app-icon {
+    align-items: center;
+    background: var(--mint);
+    display: flex;
+    height: 112px;
+    justify-content: center;
+    overflow: hidden;
+    width: 112px;
+}
+
+.report-app-icon img {
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+}
+
+.report-app-icon span {
+    color: var(--green);
+    font-family: Georgia, serif;
+    font-size: 60px;
+}
+
+.report-hero h1 {
+    font-size: clamp(45px, 7vw, 82px);
+    letter-spacing: -0.07em;
+}
+
+.report-developer {
+    color: var(--muted);
+    font-size: 14px;
+    margin: 12px 0 0;
+}
+
+.app-facts {
+    border-bottom: 1px solid var(--line);
+    border-top: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 24px 0;
+}
+
+.app-facts div {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.app-facts span {
+    color: var(--muted);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.app-facts strong {
+    font-size: 17px;
+}
+
+.report-section {
+    max-width: 650px;
+    padding: 90px 0 45px;
+}
+
+.report-section h2 {
+    font-family: Georgia, serif;
+    font-size: clamp(35px, 5vw, 60px);
+    font-weight: 400;
+    letter-spacing: -0.06em;
+    line-height: 0.95;
+    margin: 18px 0 25px;
+}
+
+.report-section>p:last-child {
+    color: var(--muted);
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+.store-link {
+    background: var(--ink);
+    color: var(--paper);
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 15px 18px;
+}
+
+.report-loading,
+.report-error {
+    font-family: Georgia, serif;
+    font-size: 32px;
+    margin-top: 30vh;
+}
+
+.report-error {
+    color: var(--orange);
+}
+
 @media (max-width: 800px) {
     .topbar {
         padding: 22px 22px;
@@ -554,5 +682,30 @@ h1 em {
         flex-direction: column;
         gap: 12px;
         padding: 22px;
+    }
+
+    .report-shell {
+        padding: 22px 22px 70px;
+    }
+
+    .back-link {
+        margin-top: 60px;
+    }
+
+    .report-hero {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .app-facts {
+        gap: 18px;
+    }
+
+    .app-facts strong {
+        font-size: 14px;
+    }
+
+    .report-section {
+        padding-top: 65px;
     }
 }

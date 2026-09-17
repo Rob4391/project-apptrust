@@ -2,6 +2,7 @@
 
 import React, { FormEvent, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const checks = [
   { label: "Permissions", detail: "What access does it need?", icon: "01" },
@@ -10,12 +11,33 @@ const checks = [
 ];
 
 export default function Home() {
+  const router = useRouter();
   const [appUrl, setAppUrl] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setSubmitted(appUrl.trim().length > 0);
+    setSubmitted(false);
+    setError(null);
+    setLoading(true);
+
+    try {
+      const response = await fetch(`/api/apps?url=${encodeURIComponent(appUrl.trim())}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error ?? "We could not check that app.");
+      }
+
+      setSubmitted(true);
+      router.push(`/report/${encodeURIComponent(data.appId)}`);
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "We could not check that app.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -51,13 +73,14 @@ export default function Home() {
                 onChange={(event) => {
                   setAppUrl(event.target.value);
                   setSubmitted(false);
+                  setError(null);
                 }}
                 required
               />
-              <button type="submit">Check app <span aria-hidden="true">↗</span></button>
+              <button type="submit" disabled={loading}>{loading ? "Checking..." : "Check app"} <span aria-hidden="true">↗</span></button>
             </div>
             <p className="form-note" aria-live="polite" role="status">
-              {submitted ? "We'll have a report ready when the lookup service is connected." : "No account needed · Free to check"}
+              {error ?? (submitted ? "Report ready. Opening it now..." : "No account needed · Free to check")}
             </p>
           </form>
         </div>

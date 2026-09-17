@@ -1,11 +1,27 @@
 import React from "react";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import Home from "./page";
+
+const { fetchMock, routerPush } = vi.hoisted(() => ({
+    fetchMock: vi.fn(),
+    routerPush: vi.fn(),
+}));
+
+vi.mock("next/navigation", () => ({
+    useRouter: () => ({ push: routerPush }),
+}));
+
+beforeEach(() => {
+    fetchMock.mockReset();
+    routerPush.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+});
 
 afterEach(() => {
     cleanup();
+    vi.unstubAllGlobals();
 });
 
 describe("AppTrust homepage", () => {
@@ -17,18 +33,27 @@ describe("AppTrust homepage", () => {
         expect(screen.getByRole("button", { name: /check app/i })).toBeInTheDocument();
     });
 
-    it("confirms a submitted app URL", async () => {
+    it("looks up a submitted app URL and opens its report", async () => {
         const user = userEvent.setup();
+        fetchMock.mockResolvedValue({
+            ok: true,
+            json: async () => ({ appId: "com.whatsapp" }),
+        });
         render(React.createElement(Home));
 
         await user.type(screen.getByLabelText("Start with an app"), "https://play.google.com/store/apps/details?id=com.whatsapp");
         await user.click(screen.getByRole("button", { name: /check app/i }));
 
-        expect(screen.getByText("We'll have a report ready when the lookup service is connected.")).toBeInTheDocument();
+        expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining("/api/apps?url="));
+        expect(routerPush).toHaveBeenCalledWith("/report/com.whatsapp");
     });
 
     it("announces submission feedback politely", async () => {
         const user = userEvent.setup();
+        fetchMock.mockResolvedValue({
+            ok: false,
+            json: async () => ({ error: "Enter a valid Google Play app URL." }),
+        });
         render(React.createElement(Home));
 
         const statusMessage = screen.getByRole("status");
@@ -39,7 +64,7 @@ describe("AppTrust homepage", () => {
         await user.type(screen.getByLabelText("Start with an app"), "https://play.google.com/store/apps/details?id=com.whatsapp");
         await user.click(screen.getByRole("button", { name: /check app/i }));
 
-        expect(statusMessage).toHaveTextContent("We'll have a report ready when the lookup service is connected.");
+        await waitFor(() => expect(statusMessage).toHaveTextContent("Enter a valid Google Play app URL."));
     });
 
     it("requires an app URL before submitting", async () => {
