@@ -2,7 +2,7 @@ name: AppTrust CI
 
 on:
   push:
-    branches: [main, first-branch]
+    branches: [main]
   pull_request:
     branches: [main]
 
