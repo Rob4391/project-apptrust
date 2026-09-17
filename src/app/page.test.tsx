@@ -27,10 +27,18 @@ describe("AppTrust homepage", () => {
         expect(screen.getByText("We'll have a report ready when the lookup service is connected.")).toBeInTheDocument();
     });
 
-    it("announces submission feedback politely", () => {
+    it("announces submission feedback politely", async () => {
+        const user = userEvent.setup();
         render(<Home />);
 
-        expect(screen.getByText("No account needed · Free to check")).toHaveAttribute("aria-live", "polite");
+        const statusMessage = screen.getByText("No account needed · Free to check");
+
+        expect(statusMessage).toHaveAttribute("aria-live", "polite");
+
+        await user.type(screen.getByLabelText("Start with an app"), "https://play.google.com/store/apps/details?id=com.whatsapp");
+        await user.click(screen.getByRole("button", { name: /check app/i }));
+
+        expect(statusMessage).toHaveTextContent("We'll have a report ready when the lookup service is connected.");
     });
 
     it("requires an app URL before submitting", async () => {
