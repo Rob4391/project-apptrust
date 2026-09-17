@@ -756,6 +756,84 @@ h1 em {
     font-size: 13px;
 }
 
+.score-section {
+    border-top: 1px solid var(--line);
+    margin-top: 20px;
+    padding: 70px 0 50px;
+}
+
+.score-summary {
+    align-items: center;
+    display: flex;
+    gap: 40px;
+    justify-content: space-between;
+}
+
+.score-summary h2 {
+    font-family: Georgia, serif;
+    font-size: clamp(35px, 5vw, 60px);
+    font-weight: 400;
+    letter-spacing: -0.06em;
+    line-height: 0.95;
+    margin: 18px 0;
+}
+
+.score-summary p:last-child {
+    color: var(--muted);
+    line-height: 1.6;
+    margin: 0;
+    max-width: 450px;
+}
+
+.trust-score {
+    align-items: baseline;
+    border: 8px solid var(--green);
+    border-radius: 50%;
+    display: flex;
+    flex: 0 0 auto;
+    height: 145px;
+    justify-content: center;
+    width: 145px;
+}
+
+.trust-score strong {
+    font-size: 42px;
+}
+
+.trust-score span {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.trust-score-medium-risk {
+    border-color: #c68a2d;
+}
+
+.trust-score-high-risk {
+    border-color: var(--orange);
+}
+
+.score-reasons {
+    border-top: 1px solid var(--line);
+    margin-top: 40px;
+    padding-top: 20px;
+}
+
+.score-reasons>strong {
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.score-reasons ul {
+    color: var(--muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 28px;
+    line-height: 1.7;
+    padding-left: 18px;
+}
+
 @media (max-width: 800px) {
     .topbar {
         padding: 22px 22px;
@@ -860,11 +938,178 @@ h1 em {
         padding-top: 55px;
     }
 
-    .permission-grid {
-        grid-template-columns: 1fr;
-    }
+    .score-section {
+        align-items: flex-start;
+        flex-direction: column;
 
-    .trust-signal-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
+        .trust-score {
+
+            .trust-score strong {
+                font-size: 32px;
+            }
+
+            .permission-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .trust-signal-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .scan-section {
+            background: linear-gradient(135deg, rgba(201, 231, 214, 0.34), rgba(245, 243, 236, 0.2));
+            border: 1px solid var(--line);
+            margin: 55px 0 10px;
+            padding: 28px;
+            position: relative;
+        }
+
+        .scan-heading {
+            align-items: flex-end;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .scan-heading h2 {
+            font-family: Georgia, serif;
+            font-size: clamp(30px, 4vw, 48px);
+            font-weight: 400;
+            letter-spacing: -0.06em;
+            line-height: 0.95;
+            margin: 12px 0 0;
+        }
+
+        .scan-progress-label {
+            color: var(--green);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .scan-progress {
+            background: rgba(23, 35, 31, 0.12);
+            height: 4px;
+            margin: 26px 0 30px;
+            overflow: hidden;
+        }
+
+        .scan-progress span {
+            background: var(--green);
+            display: block;
+            height: 100%;
+            transition: width 260ms ease;
+        }
+
+        .scan-pipeline {
+            align-items: flex-start;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+        }
+
+        .scan-node {
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            position: relative;
+            text-align: center;
+        }
+
+        .scan-node-dot {
+            align-items: center;
+            background: var(--paper);
+            border: 1px solid var(--line);
+            border-radius: 50%;
+            display: flex;
+            font-size: 11px;
+            height: 34px;
+            justify-content: center;
+            position: relative;
+            transition: background 180ms ease, border-color 180ms ease, color 180ms ease;
+            width: 34px;
+            z-index: 1;
+        }
+
+        .scan-node>div {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 12px;
+            padding: 0 7px;
+        }
+
+        .scan-node strong {
+            font-size: 11px;
+        }
+
+        .scan-node small {
+            color: var(--muted);
+            font-size: 10px;
+            line-height: 1.35;
+        }
+
+        .scan-node i {
+            background: var(--line);
+            height: 1px;
+            left: calc(50% + 17px);
+            position: absolute;
+            right: calc(-50% + 17px);
+            top: 17px;
+        }
+
+        .scan-passed .scan-node-dot {
+            background: var(--green);
+            border-color: var(--green);
+            color: white;
+        }
+
+        .scan-warning .scan-node-dot {
+            background: #f7e4be;
+            border-color: #c68a2d;
+            color: #8b5a18;
+        }
+
+        .scan-unavailable .scan-node-dot {
+            background: #f4d5cb;
+            border-color: var(--orange);
+            color: #a84028;
+        }
+
+        @media (max-width: 800px) {
+            .scan-section {
+                margin-top: 40px;
+                padding: 22px 16px;
+            }
+
+            .scan-heading {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 14px;
+            }
+
+            .scan-pipeline {
+                gap: 18px;
+                grid-template-columns: 1fr;
+            }
+
+            .scan-node {
+                align-items: flex-start;
+                flex-direction: row;
+                text-align: left;
+                width: 100%;
+            }
+
+            .scan-node>div {
+                margin: 0 0 0 12px;
+            }
+
+            .scan-node i {
+                height: 18px;
+                left: 16px;
+                right: auto;
+                top: 34px;
+                width: 1px;
+            }
+        }

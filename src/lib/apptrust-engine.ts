@@ -1,8 +1,9 @@
 import { getAppleApp, parseAppleStoreAppId } from "./apple-store";
 import { AppTrustError, isNotFoundError } from "./apptrust-errors";
 import { parseAppReference } from "./app";
-import type { AppRecord, TrustSignals } from "./app";
+import type { AppRecord, ScanStage, TrustSignals } from "./app";
 import { getGooglePlayApp, normalizeGooglePlayAppId, parseGooglePlayAppId } from "./google-play";
+import { calculateTrustScore } from "./trust-score";
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
 const REQUEST_TIMEOUT_MS = 8_000;
@@ -66,19 +67,22 @@ async function checkWebsite(app: AppRecord): Promise<TrustSignals> {
     const developerContactAvailable = Boolean(app.developerEmail || app.developerWebsite);
 
     if (!websiteUrl) {
-        return { websiteUrl: null, websiteReachable: null, httpsEnabled: false, privacyPolicyAvailable, developerContactAvailable };
+        return { websiteUrl: null, domain: null, domainAgeYears: null, registrar: null, websiteReachable: null, httpsEnabled: false, privacyPolicyAvailable, developerContactAvailable, suspiciousDomain: false };
     }
 
     let parsedUrl: URL;
     try {
         parsedUrl = new URL(websiteUrl);
     } catch {
-        return { websiteUrl, websiteReachable: false, httpsEnabled: false, privacyPolicyAvailable, developerContactAvailable };
+        return { websiteUrl, domain: null, domainAgeYears: null, registrar: null, websiteReachable: false, httpsEnabled: false, privacyPolicyAvailable, developerContactAvailable, suspiciousDomain: true };
     }
 
     let websiteReachable = false;
     try {
-        const response = await withTimeout(() => fetch(parsedUrl, { method: "HEAD" }));
+        let response = await withTimeout(() => fetch(parsedUrl, { method: "HEAD" }));
+        if (!response.ok) {
+            response = await withTimeout(() => fetch(parsedUrl, { method: "GET" }));
+        }
         websiteReachable = response.ok;
     } catch {
         websiteReachable = false;
@@ -86,11 +90,25 @@ async function checkWebsite(app: AppRecord): Promise<TrustSignals> {
 
     return {
         websiteUrl,
+        domain: parsedUrl.hostname,
+        domainAgeYears: null,
+        registrar: null,
         websiteReachable,
         httpsEnabled: parsedUrl.protocol === "https:",
         privacyPolicyAvailable,
         developerContactAvailable,
+        suspiciousDomain: parsedUrl.hostname.split(".").length < 2 || parsedUrl.protocol !== "https:",
     };
+}
+
+function buildScanStages(app: AppRecord, signals: TrustSignals): ScanStage[] {
+    return [
+        { key: "identity", label: "App identity", detail: `${app.store === "google-play" ? "Google Play" : "Apple App Store"} listing confirmed`, status: "passed" },
+        { key: "developer", label: "Developer", detail: app.developer ? `${app.developer} identified` : "Developer not listed", status: app.developer ? "passed" : "warning" },
+        { key: "permissions", label: "Permissions", detail: app.permissions.length ? `${app.permissions.length} permissions available` : "Store did not provide permission data", status: app.permissions.length ? "passed" : "unavailable" },
+        { key: "website", label: "Website", detail: signals.websiteReachable === null ? "No developer website listed" : signals.websiteReachable ? "Website responded over the network" : "Website did not respond to checks", status: signals.websiteReachable === null ? "unavailable" : signals.websiteReachable ? "passed" : "warning" },
+        { key: "trust", label: "Trust score", detail: "Score calculated from available signals", status: "passed" },
+    ];
 }
 
 export async function lookupApp(inputUrl: string | null, requestedId: string | null): Promise<AppRecord> {
@@ -107,7 +125,9 @@ export async function lookupApp(inputUrl: string | null, requestedId: string | n
 
     try {
         const app = await withRetry(source.app);
-        const value = { ...app, trustSignals: await checkWebsite(app) };
+        const trustSignals = await checkWebsite(app);
+        const trustScore = calculateTrustScore(app, trustSignals);
+        const value = { ...app, trustSignals, trustScore, scanStages: buildScanStages(app, trustSignals) };
         cache.set(cacheKey, { expiresAt: Date.now() + CACHE_TTL_MS, value });
         console.info(JSON.stringify({ event: "app_lookup_completed", store: source.storeName, success: true }));
         return value;
