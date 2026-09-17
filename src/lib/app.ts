@@ -1,5 +1,13 @@
 export type AppStore = "google-play" | "apple-app-store";
 
+export type TrustSignals = {
+    websiteUrl: string | null;
+    websiteReachable: boolean | null;
+    httpsEnabled: boolean;
+    privacyPolicyAvailable: boolean;
+    developerContactAvailable: boolean;
+};
+
 export type AppRecord = {
     appId: string;
     reference: string;
@@ -12,10 +20,12 @@ export type AppRecord = {
     developer: string;
     developerEmail: string | null;
     developerWebsite: string | null;
+    privacyPolicyUrl: string | null;
     icon: string | null;
     description: string;
     url: string;
     permissions: string[];
+    trustSignals?: TrustSignals;
 };
 
 export function parseAppReference(value: string): { store: AppStore; appId: string } | null {

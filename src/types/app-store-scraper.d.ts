@@ -7,6 +7,7 @@ declare module "app-store-scraper" {
         score?: number;
         reviews?: number;
         developerWebsite?: string;
+        privacyPolicy?: string;
         icon?: string;
         description: string;
         url: string;
