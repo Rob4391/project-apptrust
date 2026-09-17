@@ -212,6 +212,11 @@ h1 em {
     transform: translateY(-2px);
 }
 
+.search-row button:focus-visible {
+    outline: 2px solid var(--green);
+    outline-offset: 4px;
+}
+
 .search-row button span {
     font-size: 17px;
     margin-left: 7px;
