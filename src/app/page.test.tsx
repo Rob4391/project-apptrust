@@ -10,7 +10,7 @@ afterEach(() => {
 
 describe("AppTrust homepage", () => {
     it("renders the app lookup experience", () => {
-        render(<Home />);
+        render(React.createElement(Home));
 
         expect(screen.getByRole("heading", { name: /know what you're installing/i })).toBeInTheDocument();
         expect(screen.getByLabelText("Start with an app")).toBeInTheDocument();
@@ -19,7 +19,7 @@ describe("AppTrust homepage", () => {
 
     it("confirms a submitted app URL", async () => {
         const user = userEvent.setup();
-        render(<Home />);
+        render(React.createElement(Home));
 
         await user.type(screen.getByLabelText("Start with an app"), "https://play.google.com/store/apps/details?id=com.whatsapp");
         await user.click(screen.getByRole("button", { name: /check app/i }));
@@ -29,7 +29,7 @@ describe("AppTrust homepage", () => {
 
     it("announces submission feedback politely", async () => {
         const user = userEvent.setup();
-        render(<Home />);
+        render(React.createElement(Home));
 
         const statusMessage = screen.getByRole("status");
 
@@ -44,7 +44,7 @@ describe("AppTrust homepage", () => {
 
     it("requires an app URL before submitting", async () => {
         const user = userEvent.setup();
-        render(<Home />);
+        render(React.createElement(Home));
 
         const input = screen.getByLabelText("Start with an app");
         await user.click(screen.getByRole("button", { name: /check app/i }));
