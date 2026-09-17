@@ -27,6 +27,12 @@ describe("AppTrust homepage", () => {
         expect(screen.getByText("We'll have a report ready when the lookup service is connected.")).toBeInTheDocument();
     });
 
+    it("announces submission feedback politely", () => {
+        render(<Home />);
+
+        expect(screen.getByText("No account needed · Free to check")).toHaveAttribute("aria-live", "polite");
+    });
+
     it("requires an app URL before submitting", async () => {
         const user = userEvent.setup();
         render(<Home />);

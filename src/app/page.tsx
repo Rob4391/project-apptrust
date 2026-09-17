@@ -56,7 +56,7 @@ export default function Home() {
               />
               <button type="submit">Check app <span aria-hidden="true">↗</span></button>
             </div>
-            <p className="form-note">
+            <p className="form-note" aria-live="polite">
               {submitted ? "We'll have a report ready when the lookup service is connected." : "No account needed · Free to check"}
             </p>
           </form>

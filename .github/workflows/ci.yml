@@ -63,15 +63,53 @@ jobs:
         run: npm ci
 
       - name: Audit npm dependencies
-        id: audit
-        continue-on-error: true
-        run: npm audit --audit-level=high
-
-      - name: Report known audit baseline
-        if: steps.audit.outcome == 'failure'
         run: |
-          echo "The audit found a high-severity advisory in the current Next.js 15 dependency tree."
-          echo "Review the audit output before upgrading the framework or changing the audit policy."
+          npm audit --audit-level=high --json > audit-report.json || true
+
+      - name: Enforce approved audit baseline
+        run: |
+          node <<'EOF'
+          const fs = require("node:fs");
+
+          const report = JSON.parse(fs.readFileSync("audit-report.json", "utf8"));
+          const approvedHighSeverityAdvisories = new Map([
+            [1124252, "PostCSS: Arbitrary file read and information disclosure via attacker-controlled sourceMappingURL in CSS comments"],
+            [1139510, "PostCSS: Path Traversal in Previous Source Map Auto-Loading (sourceMappingURL) leads to Arbitrary .map File Disclosure"],
+            [1123525, "vite: server.fs.deny bypass on Windows alternate paths"],
+            [1139528, "Vitest UI server can read and execute arbitrary files"],
+          ]);
+
+          const highSeverityFindings = new Map();
+
+          for (const vulnerability of Object.values(report.vulnerabilities ?? {})) {
+            for (const finding of vulnerability.via ?? []) {
+              if (typeof finding === "string" || !["high", "critical"].includes(finding.severity)) {
+                continue;
+              }
+
+              highSeverityFindings.set(finding.source, finding.title);
+            }
+          }
+
+          const unexpectedFindings = [...highSeverityFindings.entries()].filter(
+            ([source]) => !approvedHighSeverityAdvisories.has(source),
+          );
+
+          if (unexpectedFindings.length > 0) {
+            console.error("Unexpected high-severity npm audit findings detected:");
+            for (const [source, title] of unexpectedFindings) {
+              console.error(`- ${source}: ${title}`);
+            }
+            process.exit(1);
+          }
+
+          console.log("Approved npm audit baseline only:");
+          for (const [source, title] of approvedHighSeverityAdvisories) {
+            if (highSeverityFindings.has(source)) {
+              console.log(`- ${source}: ${title}`);
+            }
+          }
+          EOF
 
   secret-scan:
     name: Secret scan

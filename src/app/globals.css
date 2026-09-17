@@ -184,7 +184,11 @@ h1 em {
     font: inherit;
     font-size: 14px;
     min-width: 0;
-    outline: 0;
+}
+
+.search-row input:focus-visible {
+    outline: 2px solid var(--green);
+    outline-offset: 4px;
 }
 
 .search-row input::placeholder {
