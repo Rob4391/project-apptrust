@@ -37,7 +37,7 @@ describe("AppTrust homepage", () => {
         const user = userEvent.setup();
         fetchMock.mockResolvedValue({
             ok: true,
-            json: async () => ({ appId: "com.whatsapp" }),
+            json: async () => ({ appId: "com.whatsapp", reference: "google:com.whatsapp" }),
         });
         render(React.createElement(Home));
 
@@ -45,7 +45,7 @@ describe("AppTrust homepage", () => {
         await user.click(screen.getByRole("button", { name: /check app/i }));
 
         expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining("/api/apps?url="));
-        expect(routerPush).toHaveBeenCalledWith("/report/com.whatsapp");
+        expect(routerPush).toHaveBeenCalledWith("/report/google%3Acom.whatsapp");
     });
 
     it("announces submission feedback politely", async () => {

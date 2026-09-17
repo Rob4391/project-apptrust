@@ -32,7 +32,7 @@ export default function Home() {
       }
 
       setSubmitted(true);
-      router.push(`/report/${encodeURIComponent(data.appId)}`);
+      router.push(`/report/${encodeURIComponent(data.reference)}`);
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : "We could not check that app.");
     } finally {
